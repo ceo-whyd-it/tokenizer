@@ -120,7 +120,19 @@ export default function Home() {
         const { createTokenizer } = await import('@/lib/tokenize')
         
         console.log(`✅ Module loaded, creating tokenizer for ${tokenizerType}`)
-        const tokenizer = await createTokenizer(tokenizerType)
+        
+        // Handle custom tokenizer
+        let tokenizer
+        if (tokenizerType === 'custom') {
+          const { getPreloadedModel } = await import('@/lib/preloaded-models')
+          const customModel = getPreloadedModel('custom_hviezdo')
+          if (!customModel) {
+            throw new Error('Custom Hviezdo model not found')
+          }
+          tokenizer = await createTokenizer(tokenizerType, customModel)
+        } else {
+          tokenizer = await createTokenizer(tokenizerType)
+        }
         
         console.log(`🔀 Starting tokenization for ${tokenizerType}`)
         const result = await tokenizer.tokenize(text)

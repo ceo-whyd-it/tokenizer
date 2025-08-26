@@ -1,10 +1,10 @@
-import { Token, TokenizerResult, TokenizerType } from '../types'
+import { Token, TokenizerResult, TokenizerType, CustomTokenizerData } from '../types'
 
 export interface TokenizerAdapter {
   tokenize(text: string): Promise<TokenizerResult>
 }
 
-export async function createTokenizer(type: TokenizerType): Promise<TokenizerAdapter> {
+export async function createTokenizer(type: TokenizerType, customData?: CustomTokenizerData): Promise<TokenizerAdapter> {
   console.log(`🏭 Creating tokenizer of type: ${type}`)
   
   try {
@@ -20,6 +20,14 @@ export async function createTokenizer(type: TokenizerType): Promise<TokenizerAda
         const { Llama3Adapter } = await import('./llama3')
         console.log(`✅ Llama3Adapter loaded, creating instance`)
         return new Llama3Adapter()
+      case 'custom':
+        if (!customData) {
+          throw new Error('Custom tokenizer requires model data')
+        }
+        console.log(`🎯 Loading CustomSentencePieceAdapter for ${customData.name}`)
+        const { CustomSentencePieceAdapter } = await import('./custom-sentencepiece')
+        console.log(`✅ CustomSentencePieceAdapter loaded, creating instance`)
+        return new CustomSentencePieceAdapter(customData)
       default:
         const error = new Error(`Unknown tokenizer type: ${type}`)
         console.error(`❌ Unknown tokenizer type: ${type}`)

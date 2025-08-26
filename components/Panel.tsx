@@ -20,6 +20,7 @@ const TOKENIZER_OPTIONS = [
   { value: 'cl100k_base', label: 'GPT-3/4 (cl100k_base)' },
   { value: 'r50k_base', label: 'GPT-2 (r50k_base)' },
   { value: 'llama3', label: 'Llama-3' },
+  { value: 'custom', label: 'Custom Hviezdo' },
 ]
 
 export function Panel({ state, showWhitespace, onTokenizerChange }: PanelProps) {

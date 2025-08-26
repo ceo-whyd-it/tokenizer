@@ -13,7 +13,13 @@ export interface TokenizerResult {
   latency: number
 }
 
-export type TokenizerType = 'cl100k_base' | 'r50k_base' | 'llama3'
+export type TokenizerType = 'cl100k_base' | 'r50k_base' | 'llama3' | 'custom'
+
+export interface CustomTokenizerData {
+  modelFile?: File
+  modelUrl?: string
+  name: string
+}
 
 export interface PanelState {
   tokenizer: TokenizerType
@@ -21,4 +27,5 @@ export interface PanelState {
   totalTokens: number
   latency: number
   loading: boolean
+  customTokenizerData?: CustomTokenizerData
 }
