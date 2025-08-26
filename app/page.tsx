@@ -5,7 +5,6 @@ import { InputArea } from '@/components/InputArea'
 import { Panel } from '@/components/Panel'
 import { PanelState, TokenizerType } from '@/lib/types'
 import { useDebounce } from '@/lib/hooks/useDebounce'
-import { WorkerTokenizer } from '@/lib/tokenize/worker-client'
 import { Github } from 'lucide-react'
 import Link from 'next/link'
 
@@ -47,7 +46,6 @@ export default function Home() {
   })
 
   const debouncedText = useDebounce(inputText, 250)
-  const tokenizer = useMemo(() => new WorkerTokenizer(), [])
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -75,10 +73,6 @@ export default function Home() {
     
     if (urlP3) setPanel3State(prev => ({ ...prev, tokenizer: urlP3 as TokenizerType }))
     else if (savedTokenizer3) setPanel3State(prev => ({ ...prev, tokenizer: savedTokenizer3 as TokenizerType }))
-    
-    return () => {
-      tokenizer.terminate()
-    }
   }, [])
 
   // Save to localStorage
@@ -103,7 +97,7 @@ export default function Home() {
   // Tokenize function
   const tokenizePanel = useCallback(async (
     panelSetter: React.Dispatch<React.SetStateAction<PanelState>>,
-    tokenizer: TokenizerType,
+    tokenizerType: TokenizerType,
     text: string
   ) => {
     if (!text) return
@@ -111,8 +105,13 @@ export default function Home() {
     panelSetter(prev => ({ ...prev, loading: true }))
     
     try {
-      const workerTokenizer = new WorkerTokenizer()
-      const result = await workerTokenizer.tokenize(text, tokenizer)
+      const startTime = performance.now()
+      
+      // Use main thread tokenization to avoid Web Worker issues
+      const { createTokenizer } = await import('@/lib/tokenize')
+      const tokenizer = await createTokenizer(tokenizerType)
+      const result = await tokenizer.tokenize(text)
+      
       panelSetter(prev => ({
         ...prev,
         tokens: result.tokens,
