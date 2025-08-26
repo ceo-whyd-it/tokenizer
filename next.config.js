@@ -12,6 +12,9 @@ const nextConfig = {
         fs: false,
         path: false,
         crypto: false,
+        module: false,
+        sharp: false,
+        'onnxruntime-node': false,
       };
     }
     
@@ -20,6 +23,16 @@ const nextConfig = {
       test: /\.wasm$/,
       type: 'webassembly/async',
     });
+
+    // Ignore node-specific modules
+    config.externals = config.externals || {};
+    if (!isServer) {
+      config.externals = {
+        ...config.externals,
+        sharp: 'sharp',
+        'onnxruntime-node': 'onnxruntime-node',
+      };
+    }
 
     return config;
   },

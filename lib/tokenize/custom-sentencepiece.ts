@@ -12,34 +12,75 @@ export class CustomSentencePieceAdapter implements TokenizerAdapter {
   private async getTokenizer() {
     if (!this.tokenizer) {
       try {
-        console.log(`🔧 Loading custom SentencePiece tokenizer: ${this.modelData.name}`)
+        console.log(`🔧 Loading REAL custom SentencePiece tokenizer: ${this.modelData.name}`)
         
-        // For now, we'll create a mock tokenizer that simulates SentencePiece behavior
-        // This is a simplified implementation until we can integrate a proper browser-compatible solution
-        console.warn(`⚠️ Using fallback tokenizer for ${this.modelData.name} - SentencePiece library not available in browser`)
+        let modelBuffer: ArrayBuffer
         
+        // Load the actual model file
+        if (this.modelData.modelFile) {
+          console.log(`📁 Loading model from uploaded file`)
+          modelBuffer = await this.modelData.modelFile.arrayBuffer()
+        } else if (this.modelData.modelUrl) {
+          console.log(`🌐 Loading model from URL: ${this.modelData.modelUrl}`)
+          const response = await fetch(this.modelData.modelUrl)
+          if (!response.ok) {
+            throw new Error(`Failed to fetch model: ${response.statusText}`)
+          }
+          modelBuffer = await response.arrayBuffer()
+          console.log(`✅ Model loaded: ${modelBuffer.byteLength} bytes`)
+        } else {
+          throw new Error('No model file or URL provided')
+        }
+
+        // Use @sctg/sentencepiece-js to load the actual SentencePiece model
+        console.log(`🤖 Initializing real SentencePiece processor`)
+        
+        const { SentencePieceProcessor } = await import('@sctg/sentencepiece-js')
+        
+        console.log(`📦 Creating SentencePiece processor`)
+        const spp = new SentencePieceProcessor()
+        
+        console.log(`⚡ Converting model binary data to base64 (${modelBuffer.byteLength} bytes)`)
+        
+        // Convert ArrayBuffer to base64 string
+        const uint8Array = new Uint8Array(modelBuffer)
+        let binaryString = ''
+        for (let i = 0; i < uint8Array.length; i++) {
+          binaryString += String.fromCharCode(uint8Array[i])
+        }
+        const base64Model = btoa(binaryString)
+        
+        console.log(`📤 Loading model from base64 string (${base64Model.length} chars)`)
+        await spp.loadFromB64StringModel(base64Model)
+        
+        this.tokenizer = spp
+        console.log(`✅ Real custom SentencePiece tokenizer loaded: ${this.modelData.name}`)
+        
+      } catch (error) {
+        console.error(`❌ Failed to load real SentencePiece tokenizer:`, error)
+        console.log(`🔄 Falling back to enhanced simulation`)
+        
+        // Fall back to enhanced simulation
         this.tokenizer = {
-          encode: (text: string): number[] => {
-            // Simulate SentencePiece-like tokenization
-            return this.fallbackTokenize(text).map((_, i) => i + 32000) // SentencePiece-like token IDs
+          encodeIds: (text: string): number[] => {
+            return this.fallbackTokenize(text).map((_, i) => i + 32000)
           },
-          decode: (tokens: number[]): string => {
-            // Simple decode - not used in our current implementation
+          encodePieces: (text: string): string[] => {
+            return this.fallbackTokenize(text)
+          },
+          decodeIds: (tokens: number[]): string => {
             return tokens.map(t => `<${t}>`).join('')
           }
         }
         
-        console.log(`✅ Fallback custom tokenizer created for: ${this.modelData.name}`)
-        
-      } catch (error) {
-        console.error(`❌ Failed to create custom SentencePiece tokenizer:`, error)
-        throw error
+        console.log(`✅ Fallback tokenizer created for: ${this.modelData.name}`)
       }
     } else {
       console.log(`♻️ Using cached custom SentencePiece tokenizer: ${this.modelData.name}`)
     }
     return this.tokenizer
   }
+
 
   private fallbackTokenize(text: string): string[] {
     // Enhanced tokenization for Slovak/Czech-focused model
@@ -134,9 +175,24 @@ export class CustomSentencePieceAdapter implements TokenizerAdapter {
       console.log(`📥 Getting custom SentencePiece processor`)
       const processor = await this.getTokenizer()
 
-      console.log(`🔀 Encoding text with custom fallback tokenizer`)
-      const tokenPieces = this.fallbackTokenize(text)
-      console.log(`📊 Encoded to ${tokenPieces.length} tokens with custom model`)
+      console.log(`🔀 Encoding text with REAL SentencePiece processor`)
+      
+      // Use real SentencePiece tokenizer
+      let tokenPieces: string[]
+      let tokenIds: number[]
+      
+      if (processor.encodePieces && processor.encodeIds) {
+        // Real SentencePiece processor
+        tokenPieces = processor.encodePieces(text)
+        tokenIds = processor.encodeIds(text)
+        console.log(`📊 Real SentencePiece encoded to ${tokenPieces.length} tokens`)
+      } else {
+        // Fallback processor
+        console.log(`🔄 Using fallback tokenization`)
+        tokenPieces = this.fallbackTokenize(text)
+        tokenIds = tokenPieces.map((_, i) => i + 32000)
+        console.log(`📊 Fallback encoded to ${tokenPieces.length} tokens`)
+      }
 
       const tokens: Token[] = []
 
@@ -148,7 +204,7 @@ export class CustomSentencePieceAdapter implements TokenizerAdapter {
         }
 
         const piece = tokenPieces[i]
-        const tokenId = i + 32000 // SentencePiece-like token ID range
+        const tokenId = tokenIds[i] || (i + 32000)
         const bytes = new TextEncoder().encode(piece).length
 
         tokens.push({
