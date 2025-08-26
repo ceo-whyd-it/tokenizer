@@ -38,7 +38,7 @@ export default function Home() {
   })
   
   const [panel3State, setPanel3State] = useState<PanelState>({
-    tokenizer: 'llama3',
+    tokenizer: 'custom:Hviezdo 512',
     tokens: [],
     totalTokens: 0,
     latency: 0,
@@ -123,13 +123,14 @@ export default function Home() {
         
         // Handle custom tokenizer
         let tokenizer
-        if (tokenizerType === 'custom') {
+        if (tokenizerType.startsWith('custom:')) {
+          const modelName = tokenizerType.replace('custom:', '')
           const { getPreloadedModel } = await import('@/lib/preloaded-models')
-          const customModel = getPreloadedModel('custom_hviezdo')
+          const customModel = getPreloadedModel(modelName)
           if (!customModel) {
-            throw new Error('Custom Hviezdo model not found')
+            throw new Error(`Custom model '${modelName}' not found`)
           }
-          tokenizer = await createTokenizer(tokenizerType, customModel)
+          tokenizer = await createTokenizer('custom', customModel)
         } else {
           tokenizer = await createTokenizer(tokenizerType)
         }

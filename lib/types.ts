@@ -13,7 +13,7 @@ export interface TokenizerResult {
   latency: number
 }
 
-export type TokenizerType = 'cl100k_base' | 'r50k_base' | 'llama3' | 'custom'
+export type TokenizerType = 'cl100k_base' | 'r50k_base' | 'llama3' | string // Allow custom:ModelName format
 
 export interface CustomTokenizerData {
   modelFile?: File

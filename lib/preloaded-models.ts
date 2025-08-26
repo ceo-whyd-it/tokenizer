@@ -3,8 +3,12 @@ import { CustomTokenizerData } from './types'
 // Pre-loaded models available in the public/models directory
 export const PRELOADED_MODELS: CustomTokenizerData[] = [
   {
-    name: 'custom_hviezdo',
-    modelUrl: '/models/custom_hviezdo.model'
+    name: 'Hviezdo 512',
+    modelUrl: '/models/sentp_hv_only_512.model'
+  },
+  {
+    name: 'Hviezdo LLaMA CulturaX',
+    modelUrl: '/models/sentp_llama_culturax_hv10_32000.model'
   }
 ]
 
