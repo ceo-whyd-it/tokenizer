@@ -46,6 +46,7 @@ export default function Home() {
   })
 
   const debouncedText = useDebounce(inputText, 250)
+  const tokenizingRef = React.useRef(false)
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -94,7 +95,7 @@ export default function Home() {
     localStorage.setItem('tokenizer-panel3', panel3State.tokenizer)
   }, [panel3State.tokenizer])
 
-  // Tokenize function
+  // Tokenize function with timeout
   const tokenizePanel = useCallback(async (
     panelSetter: React.Dispatch<React.SetStateAction<PanelState>>,
     tokenizerType: TokenizerType,
@@ -105,12 +106,18 @@ export default function Home() {
     panelSetter(prev => ({ ...prev, loading: true }))
     
     try {
-      const startTime = performance.now()
+      // Add timeout to prevent hanging
+      const tokenizationPromise = (async () => {
+        const { createTokenizer } = await import('@/lib/tokenize')
+        const tokenizer = await createTokenizer(tokenizerType)
+        return await tokenizer.tokenize(text)
+      })()
       
-      // Use main thread tokenization to avoid Web Worker issues
-      const { createTokenizer } = await import('@/lib/tokenize')
-      const tokenizer = await createTokenizer(tokenizerType)
-      const result = await tokenizer.tokenize(text)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error(`Tokenization timeout for ${tokenizerType}`)), 10000)
+      })
+      
+      const result = await Promise.race([tokenizationPromise, timeoutPromise])
       
       panelSetter(prev => ({
         ...prev,
@@ -120,19 +127,31 @@ export default function Home() {
         loading: false
       }))
     } catch (error) {
-      console.error('Tokenization error:', error)
-      panelSetter(prev => ({ ...prev, loading: false }))
+      console.error(`Tokenization error for ${tokenizerType}:`, error)
+      panelSetter(prev => ({ 
+        ...prev, 
+        loading: false,
+        tokens: [],
+        totalTokens: 0,
+        latency: 0
+      }))
     }
   }, [])
 
   // Tokenize on text change
   useEffect(() => {
-    if (debouncedText) {
-      tokenizePanel(setPanel1State, panel1State.tokenizer, debouncedText)
-      tokenizePanel(setPanel2State, panel2State.tokenizer, debouncedText)
-      tokenizePanel(setPanel3State, panel3State.tokenizer, debouncedText)
+    if (debouncedText && !tokenizingRef.current) {
+      tokenizingRef.current = true
+      
+      Promise.all([
+        tokenizePanel(setPanel1State, panel1State.tokenizer, debouncedText),
+        tokenizePanel(setPanel2State, panel2State.tokenizer, debouncedText),
+        tokenizePanel(setPanel3State, panel3State.tokenizer, debouncedText)
+      ]).finally(() => {
+        tokenizingRef.current = false
+      })
     }
-  }, [debouncedText, panel1State.tokenizer, panel2State.tokenizer, panel3State.tokenizer])
+  }, [debouncedText, panel1State.tokenizer, panel2State.tokenizer, panel3State.tokenizer, tokenizePanel])
 
   const handleTokenizerChange = (panelIndex: 1 | 2 | 3, newTokenizer: TokenizerType) => {
     if (syncPanels) {
