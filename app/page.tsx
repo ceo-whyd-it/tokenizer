@@ -145,15 +145,15 @@ export default function Home() {
         return result
       })()
       
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => {
-          console.error(`⏰ TIMEOUT: Tokenization for ${tokenizerType} exceeded 10 seconds`)
-          reject(new Error(`Tokenization timeout for ${tokenizerType}`))
-        }, 10000)
-      })
+      const timeoutId = setTimeout(() => {
+        console.error(`⏰ TIMEOUT: Tokenization for ${tokenizerType} exceeded 10 seconds`)
+      }, 10000)
       
       console.log(`⏳ Racing tokenization vs timeout for ${tokenizerType}`)
-      const result = await Promise.race([tokenizationPromise, timeoutPromise])
+      const result = await tokenizationPromise
+      
+      // Clear the timeout since tokenization completed successfully
+      clearTimeout(timeoutId)
       
       console.log(`🎉 Tokenization successful for ${tokenizerType}`)
       panelSetter(prev => ({
