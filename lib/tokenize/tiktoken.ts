@@ -13,25 +13,40 @@ export class TiktokenAdapter implements TokenizerAdapter {
   private async getEncoder(): Promise<Tiktoken> {
     if (!this.encoder) {
       try {
+        console.log(`🔧 Loading tiktoken encoder: ${this.encodingName}`)
         this.encoder = get_encoding(this.encodingName)
+        console.log(`✅ Tiktoken encoder loaded: ${this.encodingName}`)
       } catch (error) {
-        console.warn(`Failed to load tiktoken encoder ${this.encodingName}:`, error)
+        console.error(`❌ Failed to load tiktoken encoder ${this.encodingName}:`, error)
         throw error
       }
+    } else {
+      console.log(`♻️ Using cached tiktoken encoder: ${this.encodingName}`)
     }
     return this.encoder
   }
 
   async tokenize(text: string): Promise<TokenizerResult> {
     const startTime = performance.now()
+    console.log(`🔀 Starting tiktoken tokenization for ${this.encodingName}, text length: ${text.length}`)
     
     try {
+      console.log(`📥 Getting encoder for ${this.encodingName}`)
       const encoder = await this.getEncoder()
+      
+      console.log(`🎯 Encoding text with ${this.encodingName}`)
       const tokenIds = encoder.encode(text)
+      console.log(`📊 Encoded to ${tokenIds.length} token IDs with ${this.encodingName}`)
+      
       const tokens: Token[] = []
       
+      console.log(`🔄 Processing ${tokenIds.length} tokens for ${this.encodingName}`)
       let currentPos = 0
       for (let i = 0; i < tokenIds.length; i++) {
+        if (i % 100 === 0 && i > 0) {
+          console.log(`⏳ Processed ${i}/${tokenIds.length} tokens for ${this.encodingName}`)
+        }
+        
         const tokenId = tokenIds[i]
         const tokenArray = new Uint32Array([tokenId])
         const decodedBytes = encoder.decode(tokenArray)
@@ -51,6 +66,7 @@ export class TiktokenAdapter implements TokenizerAdapter {
       }
       
       const latency = performance.now() - startTime
+      console.log(`✅ Tiktoken tokenization completed for ${this.encodingName}: ${tokens.length} tokens in ${Math.round(latency)}ms`)
       
       return {
         tokens,

@@ -95,30 +95,54 @@ export default function Home() {
     localStorage.setItem('tokenizer-panel3', panel3State.tokenizer)
   }, [panel3State.tokenizer])
 
-  // Tokenize function with timeout
+  // Tokenize function with timeout and detailed logging
   const tokenizePanel = useCallback(async (
     panelSetter: React.Dispatch<React.SetStateAction<PanelState>>,
     tokenizerType: TokenizerType,
     text: string
   ) => {
-    if (!text) return
+    const textPreview = text.substring(0, 50) + (text.length > 50 ? '...' : '')
+    console.log(`🚀 Starting tokenization for ${tokenizerType} with text: "${textPreview}"`)
+    
+    if (!text) {
+      console.log(`❌ No text provided for ${tokenizerType}`)
+      return
+    }
     
     panelSetter(prev => ({ ...prev, loading: true }))
     
     try {
+      console.log(`📦 Loading tokenizer module for ${tokenizerType}`)
+      
       // Add timeout to prevent hanging
       const tokenizationPromise = (async () => {
+        console.log(`🔧 Creating tokenizer instance for ${tokenizerType}`)
         const { createTokenizer } = await import('@/lib/tokenize')
+        
+        console.log(`✅ Module loaded, creating tokenizer for ${tokenizerType}`)
         const tokenizer = await createTokenizer(tokenizerType)
-        return await tokenizer.tokenize(text)
+        
+        console.log(`🔀 Starting tokenization for ${tokenizerType}`)
+        const result = await tokenizer.tokenize(text)
+        
+        console.log(`✅ Tokenization completed for ${tokenizerType}:`, {
+          totalTokens: result.totalTokens,
+          latency: result.latency
+        })
+        return result
       })()
       
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error(`Tokenization timeout for ${tokenizerType}`)), 10000)
+        setTimeout(() => {
+          console.error(`⏰ TIMEOUT: Tokenization for ${tokenizerType} exceeded 10 seconds`)
+          reject(new Error(`Tokenization timeout for ${tokenizerType}`))
+        }, 10000)
       })
       
+      console.log(`⏳ Racing tokenization vs timeout for ${tokenizerType}`)
       const result = await Promise.race([tokenizationPromise, timeoutPromise])
       
+      console.log(`🎉 Tokenization successful for ${tokenizerType}`)
       panelSetter(prev => ({
         ...prev,
         tokens: result.tokens,
@@ -127,7 +151,8 @@ export default function Home() {
         loading: false
       }))
     } catch (error) {
-      console.error(`Tokenization error for ${tokenizerType}:`, error)
+      console.error(`💥 Tokenization error for ${tokenizerType}:`, error)
+      console.error(`Stack trace:`, error instanceof Error ? error.stack : 'No stack trace available')
       panelSetter(prev => ({ 
         ...prev, 
         loading: false,
@@ -140,16 +165,34 @@ export default function Home() {
 
   // Tokenize on text change
   useEffect(() => {
+    console.log(`🔄 useEffect triggered:`, {
+      debouncedText: debouncedText?.substring(0, 30) + '...',
+      tokenizing: tokenizingRef.current,
+      panel1: panel1State.tokenizer,
+      panel2: panel2State.tokenizer,
+      panel3: panel3State.tokenizer
+    })
+    
     if (debouncedText && !tokenizingRef.current) {
+      console.log(`🚦 Starting tokenization for all panels`)
       tokenizingRef.current = true
       
       Promise.all([
         tokenizePanel(setPanel1State, panel1State.tokenizer, debouncedText),
         tokenizePanel(setPanel2State, panel2State.tokenizer, debouncedText),
         tokenizePanel(setPanel3State, panel3State.tokenizer, debouncedText)
-      ]).finally(() => {
+      ]).then(() => {
+        console.log(`✅ All panels tokenization completed`)
+      }).catch((error) => {
+        console.error(`❌ Panel tokenization failed:`, error)
+      }).finally(() => {
+        console.log(`🏁 Releasing tokenization lock`)
         tokenizingRef.current = false
       })
+    } else if (!debouncedText) {
+      console.log(`⚪ No text to tokenize`)
+    } else if (tokenizingRef.current) {
+      console.log(`⏸️ Tokenization already in progress, skipping`)
     }
   }, [debouncedText, panel1State.tokenizer, panel2State.tokenizer, panel3State.tokenizer, tokenizePanel])
 

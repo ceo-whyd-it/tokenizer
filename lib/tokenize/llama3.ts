@@ -4,6 +4,7 @@ import { TokenizerAdapter } from './index'
 export class Llama3Adapter implements TokenizerAdapter {
   async tokenize(text: string): Promise<TokenizerResult> {
     const startTime = performance.now()
+    console.log(`🦙 Starting Llama3 tokenization, text length: ${text.length}`)
     
     // Simple Llama3-style tokenization fallback
     // This is a simplified approximation for demonstration purposes
@@ -65,6 +66,7 @@ export class Llama3Adapter implements TokenizerAdapter {
     })
     
     const latency = performance.now() - startTime
+    console.log(`✅ Llama3 tokenization completed: ${tokens.length} tokens in ${Math.round(latency)}ms`)
     
     return {
       tokens,
