@@ -1,6 +1,8 @@
 # Tokenizer Comparator
 
-A web application for comparing how different Large Language Model tokenizers split text. Visualize and analyze tokenization patterns across GPT-2, GPT-3/4, and Llama-3 models.
+A web application for comparing how different Large Language Model tokenizers split text. Visualize and analyze tokenization patterns across multiple models including OpenAI GPT series, Meta Llama, Google Gemma, and custom SentencePiece models.
+
+**Built by d@libor.kubis.ai**
 
 🔗 **Live Demo**: [Deploy on Vercel](https://vercel.com/new/clone?repository-url=https://github.com/ceo-whyd-it/tokenizer)
 
@@ -8,10 +10,32 @@ A web application for comparing how different Large Language Model tokenizers sp
 
 ### 🔍 Multi-Tokenizer Comparison
 - Compare three tokenizers simultaneously side-by-side
-- Support for:
-  - **GPT-2** (r50k_base)
-  - **GPT-3/4** (cl100k_base)  
-  - **Llama-3** (SentencePiece)
+- Support for 17+ tokenizers:
+  
+  **OpenAI Tokenizers** (Official tiktoken encodings):
+  - **GPT-2/3** (r50k_base) - 50,257 tokens
+  - **Codex/Davinci** (p50k_base) - 50,281 tokens
+  - **Edit Models** (p50k_edit) - With FIM tokens
+  - **GPT-3.5/4** (cl100k_base) - Most common
+  - **GPT-4o** (o200k_base) - ~200k vocabulary
+  - **GPT-4o Harmony** (o200k_harmony) - Extended format
+  
+  **Meta Models**:
+  - **Llama-3** - Real SentencePiece implementation
+  - **Meta Llama 3 8B** - Hugging Face variant
+  
+  **Other AI Models**:
+  - **Google Gemma 7B** - BPE with aggressive subwords
+  - **Microsoft Phi-2** - Conservative tokenization
+  - **DeepSeek R1** - Code-aware tokenization
+  - **Qwen 2.5 72B** - Multilingual support
+  - **Falcon 7B** - Standard BPE
+  - **OpenAI GPT-OSS 20B** - Open-weight GPT
+  
+  **Custom Models** (Your trained models):
+  - **Hviezdo 512** - Slovak-focused SentencePiece
+  - **Hviezdo LLaMA CulturaX** - Enhanced Slovak model
+  - **Hviezdo LLaMA All HV 32k** - Large vocabulary model
 
 ### 🎨 Interactive Visualization
 - **Colored Token View**: Each token gets a unique color based on its index
@@ -43,8 +67,9 @@ A web application for comparing how different Large Language Model tokenizers sp
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
 - **Tokenizers**:
-  - [@dqbd/tiktoken](https://github.com/dqbd/tiktoken) - GPT tokenization (WASM)
-  - [@xenova/transformers](https://github.com/xenova/transformers.js) - Llama tokenization
+  - [@dqbd/tiktoken](https://github.com/dqbd/tiktoken) - OpenAI tokenization (WASM) for all GPT models
+  - [@sctg/sentencepiece-js](https://www.npmjs.com/package/@sctg/sentencepiece-js) - Real SentencePiece tokenization for custom models
+  - Custom implementations for Llama and Hugging Face models
 - **Deployment**: Optimized for [Vercel](https://vercel.com/)
 
 ## Getting Started
@@ -115,6 +140,18 @@ npm run build
 - **Show Whitespace**: Toggle to visualize spaces, tabs, and newlines
 - **Export Data**: Use the copy buttons to export token data in various formats
 - **Share Results**: Click "Share" to copy a URL with your current state
+
+### Custom Models
+
+You can add your own SentencePiece models:
+
+1. Place `.model` files in the `public/models/` directory
+2. Update `lib/preloaded-models.ts` with your model information
+3. Your model will appear in the dropdown automatically
+
+Supported formats:
+- SentencePiece `.model` files
+- SentencePiece `.spm` files
 
 ### Keyboard Shortcuts
 
@@ -199,14 +236,18 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Future Enhancements
 
-- [ ] Add more tokenizers (o200k_base, Claude, etc.)
+- [x] Add more tokenizers (o200k_base, p50k variants, Hugging Face models)
+- [x] Support for custom tokenizers (SentencePiece .model files)
+- [ ] Add Claude tokenizers
 - [ ] Implement diff view to highlight tokenization differences
 - [ ] Add token cost calculator for various APIs
-- [ ] Support file upload and drag-and-drop
+- [ ] Support file upload and drag-and-drop for text
 - [ ] Add byte-level visualization
 - [ ] Implement tokenization statistics and analysis
 - [ ] Add dark mode toggle
-- [ ] Support for custom tokenizers
+- [ ] Support for tokenizer file upload UI
+- [ ] Add tokenization speed benchmarks
+- [ ] Export tokenization comparisons as reports
 
 ## License
 
