@@ -11,6 +11,8 @@ export async function createTokenizer(type: TokenizerType, customData?: CustomTo
     switch (type) {
       case 'cl100k_base':
       case 'r50k_base':
+      case 'o200k_base':
+      case 'o200k_harmony':
         console.log(`📝 Loading TiktokenAdapter for ${type}`)
         const { TiktokenAdapter } = await import('./tiktoken')
         console.log(`✅ TiktokenAdapter loaded, creating instance for ${type}`)
@@ -29,6 +31,21 @@ export async function createTokenizer(type: TokenizerType, customData?: CustomTo
         console.log(`✅ CustomSentencePieceAdapter loaded, creating instance`)
         return new CustomSentencePieceAdapter(customData)
       default:
+        // Check if it's a Hugging Face model
+        if (type.includes('/') || 
+            type.includes('gemma') || 
+            type.includes('phi') || 
+            type.includes('deepseek') || 
+            type.includes('qwen') || 
+            type.includes('falcon') || 
+            type.includes('llama') && !type.includes('llama3') ||
+            type.includes('gpt-oss')) {
+          console.log(`🤗 Loading HuggingFaceAdapter for ${type}`)
+          const { HuggingFaceAdapter } = await import('./huggingface')
+          console.log(`✅ HuggingFaceAdapter loaded, creating instance`)
+          return new HuggingFaceAdapter(type)
+        }
+        
         const error = new Error(`Unknown tokenizer type: ${type}`)
         console.error(`❌ Unknown tokenizer type: ${type}`)
         throw error

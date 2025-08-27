@@ -9,6 +9,10 @@ export const PRELOADED_MODELS: CustomTokenizerData[] = [
   {
     name: 'Hviezdo LLaMA CulturaX',
     modelUrl: '/models/sentp_llama_culturax_hv10_32000.model'
+  },
+  {
+    name: 'Hviezdo LLaMA All HV 32k',
+    modelUrl: '/models/sentp_llama_all_hv_32000.model'
   }
 ]
 

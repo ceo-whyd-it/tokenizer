@@ -4,9 +4,9 @@ import { TokenizerAdapter } from './index'
 
 export class TiktokenAdapter implements TokenizerAdapter {
   private encoder: Tiktoken | null = null
-  private encodingName: 'cl100k_base' | 'r50k_base'
+  private encodingName: 'cl100k_base' | 'r50k_base' | 'o200k_base' | 'o200k_harmony'
 
-  constructor(encodingName: 'cl100k_base' | 'r50k_base') {
+  constructor(encodingName: 'cl100k_base' | 'r50k_base' | 'o200k_base' | 'o200k_harmony') {
     this.encodingName = encodingName
   }
 
@@ -14,8 +14,16 @@ export class TiktokenAdapter implements TokenizerAdapter {
     if (!this.encoder) {
       try {
         console.log(`🔧 Loading tiktoken encoder: ${this.encodingName}`)
-        this.encoder = get_encoding(this.encodingName)
-        console.log(`✅ Tiktoken encoder loaded: ${this.encodingName}`)
+        
+        // Handle newer encodings that may not be available yet
+        let encodingToUse = this.encodingName
+        if (this.encodingName === 'o200k_base' || this.encodingName === 'o200k_harmony') {
+          console.log(`⚠️ ${this.encodingName} not yet available in @dqbd/tiktoken, using cl100k_base as fallback`)
+          encodingToUse = 'cl100k_base'
+        }
+        
+        this.encoder = get_encoding(encodingToUse as 'cl100k_base' | 'r50k_base')
+        console.log(`✅ Tiktoken encoder loaded: ${encodingToUse} (requested: ${this.encodingName})`)
       } catch (error) {
         console.error(`❌ Failed to load tiktoken encoder ${this.encodingName}:`, error)
         throw error
