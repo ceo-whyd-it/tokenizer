@@ -243,14 +243,19 @@ export default function Home() {
               Compare how different tokenizers split text
             </p>
           </div>
-          <Link
-            href="https://github.com/ceo-whyd-it/tokenizer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Github className="w-5 h-5" />
-          </Link>
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-muted-foreground">
+              Built by d@libor.kubis.ai
+            </p>
+            <Link
+              href="https://github.com/ceo-whyd-it/tokenizer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Github className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </header>
 
