@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Hviezdoslav",
+    "input_text": "Bola žatva. Sotvaže hojná oťaž rosy\nobschla: zrazu zmihalo tisíc skvúcich kosí\nvôkol jasných po stráňach nad ozimín diely,\nnakovaných za svitu, leda prúžok biely\nnakazoval, kade má slnce zpoza holí —\n(lebo planý gazda to, ktorý kúva v poli;\nešte horší, oslou len čo vždy midlikuje:\nnepodlieha úroda, len sa chlpí, snuje).\nLigot zahral, hovorím — rozbresknutá zora —\nvšak i zhasol: do spľaslých klasnatého mora\nvĺn vtopil sa po lúči, kde úvrate zhusta;\nnebadať ho, iba čuť: jak sa valí, šústa\nbodrým koscom zajatá ručaj zo pšenice\nči lenivý žita prúd. Zhíkly prepelice\n,chau-chau‘ v strachu nemalom na ruch zakosenia,\nhybaj s ráznym ,podspodok!‘ prosto do jačmeňa!\nChriašteľ zvrieskal; svrčky zas, ach, tak smutno nôťa,\nnie div: keď im vezmú žeň, čo im zbude? Psota.",
+    "Tokenizer_1": "gpt2",
+    "Tokenizer_2": "cl100k_base",
+    "Tokenizer_3": "custom:Hviezdo LLaMA CulturaX"
+  }
+]
