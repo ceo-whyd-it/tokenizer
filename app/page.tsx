@@ -3,7 +3,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { InputArea } from '@/components/InputArea'
 import { Panel } from '@/components/Panel'
+import { PresetsDialog } from '@/components/PresetsDialog'
 import { PanelState, TokenizerType } from '@/lib/types'
+import { Preset } from '@/lib/presets'
 import { useDebounce } from '@/lib/hooks/useDebounce'
 import { Github } from 'lucide-react'
 import Link from 'next/link'
@@ -20,6 +22,7 @@ export default function Home() {
   const [inputText, setInputText] = useState('')
   const [showWhitespace, setShowWhitespace] = useState(false)
   const [syncPanels, setSyncPanels] = useState(false)
+  const [presetsOpen, setPresetsOpen] = useState(false)
   
   const [panel1State, setPanel1State] = useState<PanelState>({
     tokenizer: 'cl100k_base',
@@ -233,6 +236,24 @@ export default function Home() {
     navigator.clipboard.writeText(url)
   }
 
+  const handlePresetSelect = (preset: Preset) => {
+    setInputText(preset.input_text)
+    setPanel1State(prev => ({ ...prev, tokenizer: preset.Tokenizer_1 }))
+    setPanel2State(prev => ({ ...prev, tokenizer: preset.Tokenizer_2 }))
+    setPanel3State(prev => ({ ...prev, tokenizer: preset.Tokenizer_3 }))
+  }
+
+  const handlePresetsOpen = () => {
+    setPresetsOpen(true)
+  }
+
+  const currentPresetState = useMemo(() => ({
+    inputText,
+    tokenizer1: panel1State.tokenizer,
+    tokenizer2: panel2State.tokenizer,
+    tokenizer3: panel3State.tokenizer
+  }), [inputText, panel1State.tokenizer, panel2State.tokenizer, panel3State.tokenizer])
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
@@ -268,6 +289,7 @@ export default function Home() {
           syncPanels={syncPanels}
           onSyncPanelsChange={setSyncPanels}
           onShare={handleShare}
+          onPresets={handlePresetsOpen}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -287,6 +309,13 @@ export default function Home() {
             onTokenizerChange={(t) => handleTokenizerChange(3, t)}
           />
         </div>
+
+        <PresetsDialog
+          open={presetsOpen}
+          onOpenChange={setPresetsOpen}
+          onPresetSelect={handlePresetSelect}
+          currentState={currentPresetState}
+        />
       </main>
     </div>
   )

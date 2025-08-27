@@ -4,7 +4,7 @@ import React from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Share2, Type } from 'lucide-react'
+import { Share2, Type, Settings } from 'lucide-react'
 
 interface InputAreaProps {
   value: string
@@ -14,6 +14,7 @@ interface InputAreaProps {
   syncPanels: boolean
   onSyncPanelsChange: (value: boolean) => void
   onShare: () => void
+  onPresets: () => void
 }
 
 const DEFAULT_TEXT = `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
@@ -31,7 +32,8 @@ export function InputArea({
   onShowWhitespaceChange,
   syncPanels,
   onSyncPanelsChange,
-  onShare
+  onShare,
+  onPresets
 }: InputAreaProps) {
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value)
@@ -65,6 +67,10 @@ export function InputArea({
               onChange={(e) => onSyncPanelsChange(e.target.checked)}
             />
           </div>
+          <Button onClick={onPresets} size="sm" variant="outline">
+            <Settings className="w-4 h-4 mr-2" />
+            Presets
+          </Button>
           <Button onClick={onShare} size="sm" variant="outline">
             <Share2 className="w-4 h-4 mr-2" />
             Share
