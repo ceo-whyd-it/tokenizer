@@ -1,0 +1,58 @@
+[
+  {
+    "name": "OpenAI Comparison",
+    "input_text": "The quick brown fox jumps over the lazy dog. This is a test sentence for tokenization comparison.",
+    "Tokenizer_1": "cl100k_base",
+    "Tokenizer_2": "r50k_base",
+    "Tokenizer_3": "o200k_base"
+  },
+  {
+    "name": "Custom vs GPT",
+    "input_text": "Dobrý deň! Ako sa máte? Toto je test slovenskej tokenizácie.",
+    "Tokenizer_1": "custom:Hviezdo 512",
+    "Tokenizer_2": "cl100k_base",
+    "Tokenizer_3": "custom:Hviezdo LLaMA CulturaX"
+  },
+  {
+    "name": "HuggingFace Models",
+    "input_text": "# Code Example\n\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)",
+    "Tokenizer_1": "google/gemma-7b",
+    "Tokenizer_2": "microsoft/phi-2",
+    "Tokenizer_3": "deepseek-ai/DeepSeek-R1"
+  },
+  {
+    "name": "Multi-Language Test",
+    "input_text": "Hello world! 你好世界! Здравствуй мир! مرحبا بالعالم! こんにちは世界！",
+    "Tokenizer_1": "Qwen/Qwen2.5-72B",
+    "Tokenizer_2": "cl100k_base",
+    "Tokenizer_3": "google/gemma-7b"
+  },
+  {
+    "name": "Coding Comparison",
+    "input_text": "import React, { useState, useEffect } from 'react'\n\nconst TokenizerApp = () => {\n  const [text, setText] = useState('')\n  const [tokens, setTokens] = useState([])\n  \n  useEffect(() => {\n    // Tokenize when text changes\n    tokenizeText(text)\n  }, [text])\n  \n  return <div>{tokens.length} tokens</div>\n}",
+    "Tokenizer_1": "deepseek-ai/DeepSeek-R1",
+    "Tokenizer_2": "p50k_base",
+    "Tokenizer_3": "cl100k_base"
+  },
+  {
+    "name": "All OpenAI Encodings",
+    "input_text": "Testing all OpenAI tokenizer encodings: GPT-2, Codex, GPT-3.5/4, Edit models, and GPT-4o variants.",
+    "Tokenizer_1": "r50k_base",
+    "Tokenizer_2": "p50k_base",
+    "Tokenizer_3": "cl100k_base"
+  },
+  {
+    "name": "Slovak Language Focus",
+    "input_text": "Slovenský jazyk má 46 písmen v abecede. Obsahuje diakritické znamienka ako á, č, ď, é, í, ľ, ĺ, ň, ó, ô, ŕ, š, ť, ú, ý, ž. Toto je test tokenizácie pre slovenské slová a frázy.",
+    "Tokenizer_1": "custom:Hviezdo 512",
+    "Tokenizer_2": "custom:Hviezdo LLaMA CulturaX",
+    "Tokenizer_3": "custom:Hviezdo LLaMA All HV 32k"
+  },
+  {
+    "name": "AI Model Comparison",
+    "input_text": "Compare tokenization across different AI architectures: Google's Gemma (Transformer), Microsoft's Phi (small model), and Meta's Llama (large-scale).",
+    "Tokenizer_1": "google/gemma-7b",
+    "Tokenizer_2": "microsoft/phi-2",
+    "Tokenizer_3": "meta-llama/Meta-Llama-3-8B"
+  }
+]

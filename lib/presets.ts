@@ -8,73 +8,73 @@ export interface Preset {
   Tokenizer_3: TokenizerType
 }
 
-// Default presets that come with the app
-export const DEFAULT_PRESETS: Preset[] = [
-  {
-    name: "OpenAI Comparison",
-    input_text: "The quick brown fox jumps over the lazy dog. This is a test sentence for tokenization comparison.",
-    Tokenizer_1: "cl100k_base",
-    Tokenizer_2: "r50k_base", 
-    Tokenizer_3: "o200k_base"
-  },
-  {
-    name: "Custom vs GPT",
-    input_text: "Dobrý deň! Ako sa máte? Toto je test slovenskej tokenizácie.",
-    Tokenizer_1: "custom:Hviezdo 512",
-    Tokenizer_2: "cl100k_base",
-    Tokenizer_3: "custom:Hviezdo LLaMA CulturaX"
-  },
-  {
-    name: "HuggingFace Models",
-    input_text: "# Code Example\n\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)",
-    Tokenizer_1: "google/gemma-7b",
-    Tokenizer_2: "microsoft/phi-2",
-    Tokenizer_3: "deepseek-ai/DeepSeek-R1"
-  },
-  {
-    name: "Multi-Language Test",
-    input_text: "Hello world! 你好世界! Здравствуй мир! مرحبا بالعالم! こんにちは世界！",
-    Tokenizer_1: "Qwen/Qwen2.5-72B",
-    Tokenizer_2: "cl100k_base",
-    Tokenizer_3: "google/gemma-7b"
-  },
-  {
-    name: "Coding Comparison", 
-    input_text: `import React, { useState, useEffect } from 'react'
+// Cache for loaded default presets
+let cachedDefaultPresets: Preset[] | null = null
 
-const TokenizerApp = () => {
-  const [text, setText] = useState('')
-  const [tokens, setTokens] = useState([])
-  
-  useEffect(() => {
-    // Tokenize when text changes
-    tokenizeText(text)
-  }, [text])
-  
-  return <div>{tokens.length} tokens</div>
-}`,
-    Tokenizer_1: "deepseek-ai/DeepSeek-R1",
-    Tokenizer_2: "p50k_base",
-    Tokenizer_3: "cl100k_base"
+// Load default presets from JSON file
+export async function loadDefaultPresets(): Promise<Preset[]> {
+  if (cachedDefaultPresets) {
+    return cachedDefaultPresets
   }
-]
+
+  try {
+    console.log('📁 Loading default presets from JSON file')
+    const response = await fetch('/presets/default-presets.json')
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch default presets: ${response.statusText}`)
+    }
+    
+    const presets = await response.json()
+    
+    // Validate the loaded presets
+    if (Array.isArray(presets) && presets.every(isValidPreset)) {
+      cachedDefaultPresets = presets
+      console.log(`✅ Loaded ${presets.length} default presets from JSON`)
+      return presets
+    } else {
+      throw new Error('Invalid preset format in JSON file')
+    }
+  } catch (error) {
+    console.error('❌ Failed to load default presets from JSON:', error)
+    console.log('🔄 Using fallback default presets')
+    
+    // Fallback to hardcoded presets if JSON loading fails
+    const fallbackPresets: Preset[] = [
+      {
+        name: "Basic Test",
+        input_text: "The quick brown fox jumps over the lazy dog.",
+        Tokenizer_1: "cl100k_base",
+        Tokenizer_2: "r50k_base",
+        Tokenizer_3: "o200k_base"
+      }
+    ]
+    
+    cachedDefaultPresets = fallbackPresets
+    return fallbackPresets
+  }
+}
 
 const PRESETS_STORAGE_KEY = 'tokenizer-presets'
 
-export function getStoredPresets(): Preset[] {
+export async function getStoredPresets(): Promise<Preset[]> {
   try {
     const stored = localStorage.getItem(PRESETS_STORAGE_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
       // Validate the structure
       if (Array.isArray(parsed) && parsed.every(isValidPreset)) {
+        console.log(`📦 Loaded ${parsed.length} presets from localStorage`)
         return parsed
       }
     }
   } catch (error) {
     console.warn('Failed to load presets from localStorage:', error)
   }
-  return DEFAULT_PRESETS
+  
+  // No stored presets, load defaults from JSON
+  console.log('📁 No stored presets found, loading defaults')
+  return await loadDefaultPresets()
 }
 
 export function savePresets(presets: Preset[]): void {

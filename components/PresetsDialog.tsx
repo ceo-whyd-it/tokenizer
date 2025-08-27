@@ -66,7 +66,17 @@ export function PresetsDialog({
   // Load presets on mount
   useEffect(() => {
     if (open) {
-      setPresets(getStoredPresets())
+      const loadPresets = async () => {
+        try {
+          const loadedPresets = await getStoredPresets()
+          setPresets(loadedPresets)
+        } catch (error) {
+          console.error('Failed to load presets:', error)
+          setPresets([])
+        }
+      }
+      
+      loadPresets()
     }
   }, [open])
 
