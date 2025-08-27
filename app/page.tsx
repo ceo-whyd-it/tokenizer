@@ -236,12 +236,34 @@ export default function Home() {
     navigator.clipboard.writeText(url)
   }
 
-  const handlePresetSelect = (preset: Preset) => {
+  const handlePresetSelect = useCallback((preset: Preset) => {
+    // Update input text
     setInputText(preset.input_text)
-    setPanel1State(prev => ({ ...prev, tokenizer: preset.Tokenizer_1 }))
-    setPanel2State(prev => ({ ...prev, tokenizer: preset.Tokenizer_2 }))
-    setPanel3State(prev => ({ ...prev, tokenizer: preset.Tokenizer_3 }))
-  }
+    
+    // Update tokenizers
+    setPanel1State(prev => ({ ...prev, tokenizer: preset.Tokenizer_1, loading: true }))
+    setPanel2State(prev => ({ ...prev, tokenizer: preset.Tokenizer_2, loading: true }))
+    setPanel3State(prev => ({ ...prev, tokenizer: preset.Tokenizer_3, loading: true }))
+    
+    // Force immediate tokenization without waiting for debounce
+    setTimeout(() => {
+      if (!tokenizingRef.current) {
+        tokenizingRef.current = true
+        
+        Promise.all([
+          tokenizePanel(setPanel1State, preset.Tokenizer_1, preset.input_text),
+          tokenizePanel(setPanel2State, preset.Tokenizer_2, preset.input_text),
+          tokenizePanel(setPanel3State, preset.Tokenizer_3, preset.input_text)
+        ]).then(() => {
+          console.log(`✅ Preset tokenization completed`)
+        }).catch((error) => {
+          console.error(`❌ Preset tokenization failed:`, error)
+        }).finally(() => {
+          tokenizingRef.current = false
+        })
+      }
+    }, 0)
+  }, [tokenizePanel])
 
   const handlePresetsOpen = () => {
     setPresetsOpen(true)
