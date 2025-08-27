@@ -289,8 +289,8 @@ export function PresetsDialog({
           )}
 
           {/* Presets table */}
-          <div className="flex-1 min-h-0">
-            <ScrollArea className="h-full border rounded-md">
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <ScrollArea className="h-[400px] border rounded-md">
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
