@@ -43,7 +43,7 @@ export function TokenTable({ tokens, hoveredToken, onTokenHover }: TokenTablePro
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="outline" onClick={() => handleCopy('ids')}>
           <Hash className="w-4 h-4 mr-2" />
           Copy IDs
