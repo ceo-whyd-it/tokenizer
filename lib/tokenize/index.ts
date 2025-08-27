@@ -11,6 +11,8 @@ export async function createTokenizer(type: TokenizerType, customData?: CustomTo
     switch (type) {
       case 'cl100k_base':
       case 'r50k_base':
+      case 'p50k_base':
+      case 'p50k_edit':
       case 'o200k_base':
       case 'o200k_harmony':
         console.log(`📝 Loading TiktokenAdapter for ${type}`)

@@ -18,10 +18,12 @@ interface PanelProps {
 
 const TOKENIZER_OPTIONS = [
   // OpenAI Models
-  { value: 'cl100k_base', label: 'GPT-3/4 (cl100k_base)' },
-  { value: 'r50k_base', label: 'GPT-2 (r50k_base)' },
-  { value: 'o200k_base', label: 'GPT-5 Base (o200k_base)' },
-  { value: 'o200k_harmony', label: 'GPT-5 Chat (o200k_harmony)' },
+  { value: 'cl100k_base', label: 'GPT-3.5/4 (cl100k_base)' },
+  { value: 'r50k_base', label: 'GPT-2/3 (r50k_base)' },
+  { value: 'p50k_base', label: 'Codex/Davinci (p50k_base)' },
+  { value: 'p50k_edit', label: 'Edit Models (p50k_edit)' },
+  { value: 'o200k_base', label: 'GPT-4o (o200k_base)' },
+  { value: 'o200k_harmony', label: 'GPT-4o Harmony (o200k_harmony)' },
   
   // Meta Models
   { value: 'llama3', label: 'Llama-3' },
